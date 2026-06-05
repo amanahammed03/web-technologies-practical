@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Technology Practical Exam - Set E</title>
+    <style>
+        * {
+            box-style: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            background-color: #f4f6f9;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 320px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        #sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #34495e;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .task-list {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+
+        .task-btn {
+            width: 100%;
+            background-color: #34495e;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            margin-bottom: 8px;
+            text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-btn:hover {
+            background-color: #3498db;
+        }
+
+        .task-btn.active {
+            background-color: #2ecc71;
+            font-weight: bold;
+        }
+
+        /* Main Content Container */
+        #main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Profile Card Top Section */
+        #profile-section {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        #profile-section h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            font-size: 1rem;
+        }
+
+        /* Task View Frame */
+        #task-display-container {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 5px solid #2ecc71;
+            flex-grow: 1;
+        }
+
+        #task-description-header {
+            background-color: #f8f9fa;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        #task-description-header h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        /* UI elements for internal components */
+        .workspace-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            background: #fafafa;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+
+        .workspace-ui input, .workspace-ui select, .workspace-ui button {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .workspace-ui button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .workspace-ui button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-box {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        /* Dynamic Card Layout Object Styles */
+        .card-view {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+        .card-view h4 { margin-bottom: 10px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .card-view p { margin: 5px 0; color: #555;}
+
+        /* Digital Clock & Stopwatch View styling */
+        .huge-timer {
+            font-size: 2.5rem;
+            font-family: monospace;
+            color: #2c3e50;
+            background: #eef2f3;
+            padding: 15px;
+            text-align: center;
+            border-radius: 6px;
+            letter-spacing: 2px;
+        }
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group button { flex: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>SET E: Task Navigation</h2>
+        <div class="task-list" id="btn-list-container">
+            </div>
+    </div>
+
+    <div id="main-content">
+        
+        <div id="profile-section">
+            <h1>WEB TECHNOLOGY PRACTICAL EXAM</h1>
+            <div class="profile-details">
+                <div><strong>STUDENT NAME:</strong> Aman Ahammed Musliyarakam</div>
+                <div><strong>CURRENT DATE:</strong> <span id="live-header-date"></span></div>
+                <div><strong>SUBJECT NAME:</strong> Web Technologies</div>
+            </div>
+        </div>
+
+        <div id="task-display-container">
+            <div id="task-description-header">
+                <h3 id="current-task-title">Select a Task</h3>
+                <p id="current-task-desc">Click on any task button from the left panel sidebar list to dynamically pull up the code execution workflow container UI module instantly.</p>
+            </div>
+
+            <div id="task-execution-area">
+                <p style="color: #7f8c8d; font-style: italic;">No task environment active. Select from the task map module panel.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Set Header Date automatically
+        document.getElementById('live-header-date').innerText = new Date().toLocaleDateString();
+
+        // Task Configuration Profiles Array Mapping Data Structure Configuration Definitions Array
+        const taskSpecs = [
+            { id: 1, title: "Task 1: Reverse a String", desc: "Reverses the character sequencing array structure order of an input text snippet string parameter context payload values mapping format output arrays UI elements context." },
+            { id: 2, title: "Task 2: Extract 3rd and 4th Characters", desc: "Slices specific sub-indexes positions (3rd and 4th indices elements) dynamically based off target zero-index references array values." },
+            { id: 3, title: "Task 3: Find Longest Word", desc: "Analyzes textual inputs structures to split components items tokens parsing validation targeting strings max bounds characters widths metrics." },
+            { id: 4, title: "Task 4: Convert String to Lowercase", desc: "Transforms string alphanumeric data sets values explicitly down into universal lowercase case standards processing parameters." },
+            { id: 5, title: "Task 5: Convert String to Uppercase", desc: "Transforms string alphanumeric data sets values explicitly up into universal uppercase case standards processing parameters." },
+            { id: 6, title: "Task 6: Count Words + Special Characters", desc: "Detects total matches counts parsing instances words sequences and identifies symbols tokens patterns outside numbers or alphabet frameworks values maps." },
+            { id: 7, title: "Task 7: Create Array of Numbers", desc: "Parses comma-separated string streams to instantiate native JavaScript numeric primitives structures arrays data layers arrays." },
+            { id: 8, title: "Task 8: Display Third Element", desc: "Accesses absolute 0-indexed structure element offset array map references layers at Index positions integer offset position point 2 value." },
+            { id: 9, title: "Task 9: Find Last Element (Popup Alert)", desc: "Triggers dynamic modal interface elements showing final terminal array node position references via runtime calculations pops data fields context configurations." },
+            { id: 10, title: "Task 10: Find 10th Character from Popup Input", desc: "Launches prompt capture layer sequence UI elements to pull exact offset arrays indices context from values maps positions string metrics." },
+            { id: 11, title: "Task 11: Apply map() to Double Elements", desc: "Iterates data layers using higher order structures functions transformations map matrices modifying original numbers lists elements configurations context." },
+            { id: 12, title: "Task 12: Sort Array Descending", desc: "Organizes current array configurations elements dynamically downward relative to comparative logic evaluation algorithms layers data sorting keys values rules." },
+            { id: 13, title: "Task 13: Splice - Insert Elements", desc: "Modifies standard list elements positioning architectures dynamic mid-stream indexing operations injecting payload details contents configurations." },
+            { id: 14, title: "Task 14: Splice - Delete Elements", desc: "Excises dynamic block target index positions sets from active collection matrix configurations arrays structural formats directly." },
+            { id: 15, title: "Task 15: Arithmetic Operations via Selection", desc: "Calculates variable results processing structures parameters matching multi-conditional logic trees matching computational pathways interfaces runtime operations rules." },
+            { id: 16, title: "Task 16: Function - Add Two Numbers", desc: "Executes programmatic function scope pipelines targeting encapsulation summary aggregations for pairs value components contexts arrays patterns." },
+            { id: 17, title: "Task 17: Function - Multiply Two Numbers", desc: "Executes scaling math structures pipeline operations algorithms mapping factors pairs products returns updates context elements structures data." },
+            { id: 18, title: "Task 18: Function - Divide Two Numbers", desc: "Solves quotients computing operations frameworks tracking protection rules blocking invalid mathematical expressions patterns operations loops processing." },
+            { id: 19, title: "Task 19: Function - Check Even/Odd", desc: "Computes modulations evaluation structures identifying numerical remainders integer properties standards layouts architectures validation loops checks rules." },
+            { id: 20, title: "Task 20: Popup - Allow Only 10-Digit Input", desc: "Forces structural field parameters format parsing constraints limits tracking precise length evaluation algorithms criteria matches logic bounds layers values fields." },
+            { id: 21, title: "Task 21: Popup - Numeric/String Arithmetic Rule", desc: "Accepts numeric/string arrays tracking types parameters contexts before mapping operational outputs loops routines dynamically matching calculations configurations." },
+            { id: 22, title: "Task 22: Validate - Email Format", desc: "Runs alphanumeric string stream validations patterns against globally accepted standard tokenized sequence verification configurations templates testing forms maps." },
+            { id: 23, title: "Task 23: Validate - Password Length", desc: "Evaluates standard size bounding dimensions parameter metrics criteria maps ensuring minimum length limits criteria sets fields inputs checks tracking data." },
+            { id: 24, title: "Task 24: Signup Form with Submit/Reset", desc: "Renders standardized transactional inputs tracking operations layout elements contexts to manage structured configuration elements submission cycles blocks actions tracking states." },
+            { id: 25, title: "Task 25: Display Entered Form Data Clearly", desc: "Parses captured data inputs values schemas structures updating interface containers mapping layout records values directly dynamically visible logs frameworks panels." },
+            { id: 26, title: "Task 26: Display Form Data Count (Fields Filled)", desc: "Aggregates absolute active data field input instances metrics tracking counter states checking valid states filled context profiles models properties structures lists." },
+            { id: 27, title: "Task 27: Create Person Object", desc: "Instantiates multi-property structural dictionary paradigms tracking keys models variables profiles frameworks data elements context arrays map schemas properties components." },
+            { id: 28, title: "Task 28: Display Person Object in Card Layout", desc: "Takes serialized JSON structures/object properties formatting components layout frames using HTML design standard block visualization frameworks components context structures." },
+            { id: 29, title: "Task 29: Stopwatch with Start/Pause/Stop/Reset", desc: "Tracks time interval structures operations processes through state tracking engines updating view records metrics scales precision updates intervals loops blocks." },
+            { id: 30, title: "Task 30: Live Clock Display (Updates Every Second)", desc: "Establishes automated structural recursive polling triggers updating local standard system layout strings dynamically every single second interval duration loops blocks configurations." }
+        ];
+
+        // Global state object tracking instances for background background tasks loops configurations maps values parameters
+        let stopwatchInterval = null;
+        let stopwatchTime = 0; // in tenths of a second
+        let clockInterval = null;
+
+        // Populate Left Panel Sidebars List Layout Controls Buttons Map Components Arrays Layout UI
+        const btnContainer = document.getElementById('btn-list-container');
+        taskSpecs.forEach(task => {
+            const btn = document.createElement('button');
+            btn.className = `task-btn`;
+            btn.id = `btn-task-${task.id}`;
+            btn.innerText = `${task.id}. ${task.title.split(': ')[1]}`;
+            btn.onclick = () => loadTaskWorkspace(task.id);
+            btnContainer.appendChild(btn);
+        });
+
+        // Main Router Core UI Generator Switch Management Framework Function Pipeline Layout Configurations Modules 
+        function loadTaskWorkspace(id) {
+            // Manage Active Styling Classes Loops Setup Tasks Arrays Map Items
+            document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-task-${id}`).classList.add('active');
+
+            // Clear active persistent execution setups blocks logic timers rules structures context updates structures items
+            if(stopwatchInterval) { clearInterval(stopwatchInterval); stopwatchInterval = null; stopwatchTime = 0;}
+            if(clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+
+            const task = taskSpecs.find(t => t.id === id);
+            document.getElementById('current-task-title').innerText = task.title;
+            document.getElementById('current-task-desc').innerText = task.desc;
+
+            const execArea = document.getElementById('task-execution-area');
+            execArea.innerHTML = ''; // Flush target content
+
+            // Create wrapper element
+            const ui = document.createElement('div');
+            ui.className = 'workspace-ui';
+
+            // Switch routes matching assignments structural layout configuration criteria workflows map components patterns
+            switch(id) {
+                case 1:
+                    ui.innerHTML = `
+                        <input type="text" id="t1-input" value="Hello World" placeholder="Enter string...">
+                        <button onclick="runT1()">Reverse String</button>
+                        <div class="result-box" id="t1-res">Result will show here</div>
+                    `;
+                    break;
+                case 2:
+                    ui.innerHTML = `
+                        <input type="text" id="t2-input" value="JavaScript" placeholder="Enter text (min 4 chars)...">
+                        <button onclick="runT2()">Extract 3rd & 4th Characters</button>
+                        <div class="result-box" id="t2-res">Result will show here</div>
+                    `;
+                    break;
+                case 3:
+                    ui.innerHTML = `
+                        <input type="text" id="t3-input" value="Web Technology Practical Examination" placeholder="Enter phrase...">
+                        <button onclick="runT3()">Find Longest Word</button>
+                        <div class="result-box" id="t3-res">Result will show here</div>
+                    `;
+                    break;
+                case 4:
+                    ui.innerHTML = `
+                        <input type="text" id="t4-input" value="CONVERT ME TO LOWER" placeholder="Enter text...">
+                        <button onclick="runT4()">Convert Lowercase</button>
+                        <div class="result-box" id="t4-res">Result will show here</div>
+                    `;
+                    break;
+                case 5:
+                    ui.innerHTML = `
+                        <input type="text" id="t5-input" value="convert me to upper" placeholder="Enter text...">
+                        <button onclick="runT5()">Convert Uppercase</button>
+                        <div class="result-box" id="t5-res">Result will show here</div>
+                    `;
+                    break;
+                case 6:
+                    ui.innerHTML = `
+                        <input type="text" id="t6-input" value="Hello World! @2026 #SetE" placeholder="Enter text string...">
+                        <button onclick="runT6()">Count Metrics</button>
+                        <div class="result-box" id="t6-res">Words: 0 | Special Symbols: 0</div>
+                    `;
+                    break;
+                case 7:
+                    ui.innerHTML = `
+                        <input type="text" id="t7-input" value="10, 20, 30, 40, 50" placeholder="Comma separated numbers...">
+                        <button onclick="runT7()">Generate Numeric Array</button>
+                        <div class="result-box" id="t7-res">Result array type shown here</div>
+                    `;
+                    break;
+                case 8:
+                    ui.innerHTML = `
+                        <input type="text" id="t8-input" value="Apple, Banana, Cherry, Date, Elderberry" placeholder="Comma separated items...">
+                        <button onclick="runT8()">Display Index Position [2]</button>
+                        <div class="result-box" id="t8-res">Result elements container display</div>
+                    `;
+                    break;
+                case 9:
+                    ui.innerHTML = `
+                        <input type="text" id="t9-input" value="Red, Green, Blue, Yellow" placeholder="Comma separated elements...">
+                        <button onclick="runT9()">Launch Alert Output Processing</button>
+                        <div class="result-box" id="t9-res">Click button to open dialog execution window framework.</div>
+                    `;
+                    break;
+                case 10:
+                    ui.innerHTML = `
+                        <button onclick="runT10()">Launch Text Capture Window</button>
+                        <div class="result-box" id="t10-res">Data tracking framework log verification field.</div>
+                    `;
+                    break;
+                case 11:
+                    ui.innerHTML = `
+                        <input type="text" id="t11-input" value="1.5, 3, 5, 12" placeholder="Comma separated integers/floats...">
+                        <button onclick="runT11()">Map Transform Data (Double)</button>
+                        <div class="result-box" id="t11-res">Result list arrays transform metrics field mappings.</div>
+                    `;
+                    break;
+                case 12:
+                    ui.innerHTML = `
+                        <input type="text" id="t12-input" value="45, 12, 89, 5, 23" placeholder="Comma separated items values list...">
+                        <button onclick="runT12()">Sort Values Descending</button>
+                        <div class="result-box" id="t12-res">Sorted values target stack display layer.</div>
+                    `;
+                    break;
+                case 13:
+                    ui.innerHTML = `
+                        <p>Current Array: <code>["Gold", "Silver", "Bronze"]</code></p>
+                        <input type="text" id="t13-index" value="1" placeholder="Target Splice Index...">
+                        <input type="text" id="t13-val" value="Platinum" placeholder="Item value string to inject...">
+                        <button onclick="runT13()">Execute Splice Insertion</button>
+                        <div class="result-box" id="t13-res">Updated collection sequence.</div>
+                    `;
+                    break;
+                case 14:
+                    ui.innerHTML = `
+                        <p>Current Array: <code>["Car", "Bike", "Truck", "Plane", "Train"]</code></p>
+                        <input type="number" id="t14-index" value="2" placeholder="Target Index position offset...">
+                        <input type="number" id="t14-count" value="1" placeholder="Delete count size...">
+                        <button onclick="runT14()">Execute Splice Deletion</button>
+                        <div class="result-box" id="t14-res">Updated structural state results array.</div>
+                    `;
+                    break;
+                case 15:
+                    ui.innerHTML = `
+                        <input type="number" id="t15-n1" value="12" placeholder="Value A">
+                        <input type="number" id="t15-n2" value="4" placeholder="Value B">
+                        <select id="t15-op">
+                            <option value="add">Addition (+)</option>
+                            <option value="sub">Subtraction (-)</option>
+                            <option value="mul">Multiplication (*)</option>
+                            <option value="div">Division (/)</option>
+                        </select>
+                        <button onclick="runT15()">Calculate Result State</button>
+                        <div class="result-box" id="t15-res">Calculated dynamic output pipeline matrix.</div>
+                    `;
+                    break;
+                case 16:
+                    ui.innerHTML = `
+                        <input type="number" id="t16-n1" value="15" placeholder="Number 1">
+                        <input type="number" id="t16-n2" value="27" placeholder="Number 2">
+                        <button onclick="runT16()">Call add() Function</button>
+                        <div class="result-box" id="t16-res">Output sum total fields context.</div>
+                    `;
+                    break;
+                case 17:
+                    ui.innerHTML = `
+                        <input type="number" id="t17-n1" value="6" placeholder="Factor A">
+                        <input type="number" id="t17-n2" value="7" placeholder="Factor B">
+                        <button onclick="runT17()">Call multiply() Function</button>
+                        <div class="result-box" id="t17-res">Output scaling evaluation returns values metrics.</div>
+                    `;
+                    break;
+                case 18:
+                    ui.innerHTML = `
+                        <input type="number" id="t18-n1" value="100" placeholder="Numerator">
+                        <input type="number" id="t18-n2" value="5" placeholder="Denominator">
+                        <button onclick="runT18()">Call divide() Function</button>
+                        <div class="result-box" id="t18-res">Quotient results data extraction.</div>
+                    `;
+                    break;
+                case 19:
+                    ui.innerHTML = `
+                        <input type="number" id="t19-n" value="42" placeholder="Integer value...">
+                        <button onclick="runT19()">Check Parity Properties</button>
+                        <div class="result-box" id="t19-res">Property valuation configuration validation state.</div>
+                    `;
+                    break;
+                case 20:
+                    ui.innerHTML = `
+                        <button onclick="runT20()">Open 10-Digit Validation Prompt</button>
+                        <div class="result-box" id="t20-res">Status profile configuration context response framework.</div>
+                    `;
+                    break;
+                case 21:
+                    ui.innerHTML = `
+                        <button onclick="runT21()">Open Mixed Type Validation Framework Dialog</button>
+                        <div class="result-box" id="t21-res">Operation results runtime reporting fields view.</div>
+                    `;
+                    break;
+                case 22:
+                    ui.innerHTML = `
+                        <input type="text" id="t22-input" value="test@example.com" placeholder="Enter target email structure...">
+                        <button onclick="runT22()">Verify Email Structural Regex Match</button>
+                        <div class="result-box" id="t22-res">Validation state report.</div>
+                    `;
+                    break;
+                case 23:
+                    ui.innerHTML = `
+                        <input type="password" id="t23-input" value="secret123" placeholder="Enter password text context...">
+                        <button onclick="runT23()">Verify Bounds Size Logic (Min 8 Chars)</button>
+                        <div class="result-box" id="t23-res">Size threshold configuration state logging validation.</div>
+                    `;
+                    break;
+                case 24:
+                case 25:
+                case 26:
+                    ui.innerHTML = `
+                        <form id="practical-signup-form" onsubmit="event.preventDefault();">
+                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                <label>Full Name:</label>
+                                <input type="text" id="f-name" value="Jane Doe">
+                                <label>Email Address:</label>
+                                <input type="text" id="f-email" value="jane@domain.com">
+                                <label>Phone Contact:</label>
+                                <input type="text" id="f-phone" value="9876543210">
+                                <label>City Residence:</label>
+                                <input type="text" id="f-city" value="">
+                            </div>
+                            <div class="btn-group" style="margin-top:15px;">
+                                <button type="button" style="background:#2ecc71;" onclick="submitFormWorkflow()">Submit Form</button>
+                                <button type="button" style="background:#e74c3c;" onclick="resetFormWorkflow()">Reset Fields</button>
+                            </div>
+                        </form>
+                        <div class="result-box" id="form-metrics-logs">
+                            <strong>[Task 24, 25, 26 Combined View Context Dashboard]</strong><br>
+                            <span id="f-count-msg">Fields populated status count log update view dashboard records.</span>
+                            <hr style="margin:8px 0; border:0; border-top:1px solid #ccc;">
+                            <div id="f-data-display" style="font-family:monospace; font-size:0.85rem; white-space:pre-wrap;">No active data payloads pushed. Click submit form.</div>
+                        </div>
+                    `;
+                    // Trigger tracking count calculation baseline view states values instantly configuration logic parameters setups structures
+                    setTimeout(updateFormFieldsCounter, 50);
+                    // Append dynamic key listener updates automatically
+                    setTimeout(() => {
+                        ['f-name','f-email','f-phone','f-city'].forEach(id=> {
+                            document.getElementById(id).addEventListener('input', updateFormFieldsCounter);
+                        });
+                    }, 100);
+                    break;
+                case 27:
+                    ui.innerHTML = `
+                        <button onclick="runT27()">Instantiate Internal Person Native Instance Object</button>
+                        <div class="result-box" id="t27-res">Object profile structural schema properties field logs trace outputs.</div>
+                    `;
+                    break;
+                case 28:
+                    ui.innerHTML = `
+                        <button onclick="runT28()">Map Render Person Object into Visual Card Design UI</button>
+                        <div id="t28-res" style="margin-top:15px;"></div>
+                    `;
+                    break;
+                case 29:
+                    ui.innerHTML = `
+                        <div class="huge-timer" id="sw-display">00:00:00.0</div>
+                        <div class="btn-group">
+                            <button onclick="swStart()" style="background:#2ecc71;">Start</button>
+                            <button onclick="swPause()" style="background:#f39c12;">Pause</button>
+                            <button onclick="swStop()" style="background:#e67e22;">Stop</button>
+                            <button onclick="swReset()" style="background:#95a5a6;">Reset</button>
+                        </div>
+                    `;
+                    break;
+                case 30:
+                    ui.innerHTML = `
+                        <div class="huge-timer" id="clock-display">00:00:00 AM</div>
+                        <p style="text-align:center; color:#7f8c8d; font-size:0.85rem;">Rendering active recursive system tick updates tracking seconds interval standard loops.</p>
+                    `;
+                    initLiveClockEngine();
+                    break;
+            }
+
+            execArea.appendChild(ui);
+        }
+
+        // ==================== TASK EXECUTION RUNTIME LOGIC ENGINE ====================
+
+        // Task 1: Reverse String
+        function runT1() {
+            const val = document.getElementById('t1-input').value;
+            document.getElementById('t1-res').innerText = "Reversed: " + val.split('').reverse().join('');
+        }
+
+        // Task 2: Extract 3rd and 4th characters
+        function runT2() {
+            const val = document.getElementById('t2-input').value;
+            if(val.length < 4) {
+                document.getElementById('t2-res').innerText = "Error: Input string length must be at least 4 characters long.";
+                return;
+            }
+            // 3rd character is index 2, 4th character is index 3. slice(2, 4) extracts index 2 and 3.
+            document.getElementById('t2-res').innerText = `3rd & 4th Characters extracted: "${val.slice(2, 4)}"`;
+        }
+
+        // Task 3: Find Longest Word
+        function runT3() {
+            const val = document.getElementById('t3-input').value;
+            const words = val.replace(/[^a-zA-Z0-9 ]/g, "").split(' ');
+            let longest = "";
+            words.forEach(w => { if(w.length > longest.length) longest = w; });
+            document.getElementById('t3-res').innerText = longest ? `Longest word identified: "${longest}" (${longest.length} chars)` : "No words found.";
+        }
+
+        // Task 4: Convert to Lowercase
+        function runT4() {
+            const val = document.getElementById('t4-input').value;
+            document.getElementById('t4-res').innerText = "Lowercase Result: " + val.toLowerCase();
+        }
+
+        // Task 5: Convert to Uppercase
+        function runT5() {
+            const val = document.getElementById('t5-input').value;
+            document.getElementById('t5-res').innerText = "Uppercase Result: " + val.toUpperCase();
+        }
+
+        // Task 6: Detect number of words + special symbols
+        function runT6() {
+            const val = document.getElementById('t6-input').value;
+            const wordsArr = val.trim().split(/\s+/).filter(w => w.length > 0);
+            const wordCount = wordsArr.length;
+            // Count characters that are NOT alphanumeric or whitespace
+            const specialMatches = val.match(/[^a-zA-Z0-9\s]/g);
+            const specialCount = specialMatches ? specialMatches.length : 0;
+            document.getElementById('t6-res').innerText = `Words Count: ${wordCount} | Special Symbols Count: ${specialCount}`;
+        }
+
+        // Task 7: Create array of numbers
+        function runT7() {
+            const val = document.getElementById('t7-input').value;
+            const numArr = val.split(',').map(n => Number(n.trim())).filter(n => !isNaN(n));
+            document.getElementById('t7-res').innerHTML = `Generated Array: <code>${JSON.stringify(numArr)}</code> <br> Type Verified: Native JavaScript ${typeof numArr} (Array instance)`;
+        }
+
+        // Task 8: Display third element
+        function runT8() {
+            const val = document.getElementById('t8-input').value;
+            const arr = val.split(',').map(item => item.trim());
+            if(arr.length < 3) {
+                document.getElementById('t8-res').innerText = "Error: Input must have at least 3 comma-separated elements.";
+                return;
+            }
+            document.getElementById('t8-res').innerText = `Element at index position 2 (Third item): "${arr[2]}"`;
+        }
+
+        // Task 9: Find last element from array (popup)
+        function runT9() {
+            const val = document.getElementById('t9-input').value;
+            const arr = val.split(',').map(item => item.trim()).filter(item => item.length > 0);
+            if(arr.length === 0) {
+                alert("The list processing array structure is empty.");
+                return;
+            }
+            const lastElement = arr[arr.length - 1];
+            alert(`Last Element processed inside array structure: ${lastElement}`);
+            document.getElementById('t9-res').innerText = `Triggered Popup Alert showing terminal node item: "${lastElement}"`;
+        }
+
+        // Task 10: Find 10th character from popup input
+        function runT10() {
+            const userInput = prompt("Please provide a text entry string sequence to parse (minimum 10 characters):", "WebTechnology2026");
+            if (userInput === null) {
+                document.getElementById('t10-res').innerText = "Action aborted by the user.";
+                return;
+            }
+            if (userInput.length < 10) {
+                document.getElementById('t10-res').innerText = `Provided text size (${userInput.length}) is too short to extract a 10th character.`;
+                alert("Error: Input text sequence length must contain at least 10 characters.");
+                return;
+            }
+            const tenthChar = userInput.charAt(9); // 0-indexed position 9 matches absolute 10th item spot placement criteria bounds loop tracking
+            document.getElementById('t10-res').innerText = `User entered text pipeline value context: "${userInput}"\n10th absolute character index value: "${tenthChar}"`;
+            alert(`The 10th absolute character element position contains character: ${tenthChar}`);
+        }
+
+        // Task 11: Apply map() to double elements
+        function runT11() {
+            const val = document.getElementById('t11-input').value;
+            const arr = val.split(',').map(n => Number(n.trim())).filter(n => !isNaN(n));
+            const doubled = arr.map(x => x * 2);
+            document.getElementById('t11-res').innerHTML = `Original: ${JSON.stringify(arr)} <br><strong>Doubled via map(): ${JSON.stringify(doubled)}</strong>`;
+        }
+
+        // Task 12: Sort array descending
+        function runT12() {
+            const val = document.getElementById('t12-input').value;
+            const arr = val.split(',').map(n => Number(n.trim())).filter(n => !isNaN(n));
+            // Sort Descending numerical structure sort evaluation callback configuration framework operations structures metrics
+            arr.sort((a, b) => b - a);
+            document.getElementById('t12-res').innerHTML = `Sorted Descending Array: <code>${JSON.stringify(arr)}</code>`;
+        }
+
+        // Task 13: Splice: insert elements
+        let t13ArrayState = ["Gold", "Silver", "Bronze"];
+        function runT13() {
+            const idx = parseInt(document.getElementById('t13-index').value, 10);
+            const val = document.getElementById('t13-val').value;
+            if(isNaN(idx)) { alert("Enter a valid integer index value mapping index context execution targets."); return; }
+            
+            // Execute structural target injection positioning splice logic configuration context parameters values bounds 
+            t13ArrayState.splice(idx, 0, val);
+            document.getElementById('t13-res').innerHTML = `Mutated Array State: <code>${JSON.stringify(t13ArrayState)}</code>`;
+        }
+
+        // Task 14: Splice: delete elements
+        let t14ArrayState = ["Car", "Bike", "Truck", "Plane", "Train"];
+        function runT14() {
+            const idx = parseInt(document.getElementById('t14-index').value, 10);
+            const count = parseInt(document.getElementById('t14-count').value, 10);
+            if(isNaN(idx) || isNaN(count)) { alert("Provide explicit integer bounds parameters tracking parameters."); return; }
+            
+            const removedElements = t14ArrayState.splice(idx, count);
+            document.getElementById('t14-res').innerHTML = `Removed Items: ${JSON.stringify(removedElements)} <br>Remaining Matrix State: <code>${JSON.stringify(t14ArrayState)}</code>`;
+        }
+
+        // Task 15: Function: arithmetic operations as per user choice
+        function runT15() {
+            const n1 = parseFloat(document.getElementById('t15-n1').value);
+            const n2 = parseFloat(document.getElementById('t15-n2').value);
+            const op = document.getElementById('t15-op').value;
+            if(isNaN(n1) || isNaN(n2)) { document.getElementById('t15-res').innerText = "Invalid numerical variables parameters."; return; }
+            
+            let res;
+            if(op === "add") res = n1 + n2;
+            else if(op === "sub") res = n1 - n2;
+            else if(op === "mul") res = n1 * n2;
+            else if(op === "div") res = n2 !== 0 ? (n1 / n2) : "Zero Division Error Exception";
+            
+            document.getElementById('t15-res').innerHTML = `Operation Runtime Result execution outcome parameter: <strong>${res}</strong>`;
+        }
+
+        // Task 16: Function: add two numbers
+        function addTwoNumbers(a, b) { return a + b; }
+        function runT16() {
+            const n1 = parseFloat(document.getElementById('t16-n1').value);
+            const n2 = parseFloat(document.getElementById('t16-n2').value);
+            document.getElementById('t16-res').innerText = isNaN(n1)||isNaN(n2) ? "Provide inputs" : `Result of add(${n1}, ${n2}) = ${addTwoNumbers(n1, n2)}`;
+        }
+
+        // Task 17: Function: multiply two numbers
+        function multiplyTwoNumbers(a, b) { return a * b; }
+        function runT17() {
+            const n1 = parseFloat(document.getElementById('t17-n1').value);
+            const n2 = parseFloat(document.getElementById('t17-n2').value);
+            document.getElementById('t17-res').innerText = isNaN(n1)||isNaN(n2) ? "Provide inputs" : `Result of multiply(${n1}, ${n2}) = ${multiplyTwoNumbers(n1, n2)}`;
+        }
+
+        // Task 18: Function: divide two numbers
+        function divideTwoNumbers(a, b) { return b === 0 ? "Cannot divide by absolute zero value structure frameworks maps context bounds" : (a / b); }
+        function runT18() {
+            const n1 = parseFloat(document.getElementById('t18-n1').value);
+            const n2 = parseFloat(document.getElementById('t18-n2').value);
+            document.getElementById('t18-res').innerText = isNaN(n1)||isNaN(n2) ? "Provide inputs" : `Result of divide(${n1}, ${n2}) = ${divideTwoNumbers(n1, n2)}`;
+        }
+
+        // Task 19: Function: check even/odd
+        function checkEvenOddParity(n) { return n % 2 === 0 ? "Even Number Property" : "Odd Number Property"; }
+        function runT19() {
+            const n = parseInt(document.getElementById('t19-n').value, 10);
+            document.getElementById('t19-res').innerText = isNaN(n) ? "Provide valid entry." : `The evaluation properties for integer value (${n}) resolves to: ${checkEvenOddParity(n)}`;
+        }
+
+        // Task 20: Popup: allow only 10-digit input
+        function runT20() {
+            const inputVal = prompt("Enter exactly a 10-digit phone/numeric reference string indicator sequence value bounds:");
+            if(inputVal === null) return; // User canceled sequence configuration actions mapping tracking metrics loops
+            
+            const numericRegex = /^\d+$/;
+            if(inputVal.length === 10 && numericRegex.test(inputVal)) {
+                document.getElementById('t20-res').innerHTML = `<span style="color:green; font-weight:bold;">Success! Valid 10-digit numeric profile captured payload format verified: ${inputVal}</span>`;
+                alert("Validation Passed successfully! Exactly 10 digits verified entries.");
+            } else {
+                document.getElementById('t20-res').innerHTML = `<span style="color:red; font-weight:bold;">Validation Failure Rule violation constraint bounds context logs. User entered value length: ${inputVal.length} entries.</span>`;
+                alert("Validation Failure: Entry format violates requirements rules constraints structure. Input must be exactly 10 digits.");
+            }
+        }
+
+        // Task 21: Popup: numeric/string rule arithmetic
+        function runT21() {
+            const valA = prompt("Enter First parameter value variable context block (can be standard text string or number value configuration structures):", "15");
+            if(valA === null) return;
+            const valB = prompt("Enter Second parameter value variable context block (can be standard text string or number value configuration structures):", "5");
+            if(valB === null) return;
+
+            // Strict checking properties definitions logic frameworks tracing conditions
+            const isANumeric = !isNaN(valA) && valA.trim() !== "";
+            const isBNumeric = !isNaN(valB) && valB.trim() !== "";
+
+            if(isANumeric && isBNumeric) {
+                const numA = parseFloat(valA);
+                const numB = parseFloat(valB);
+                const sum = numA + numB;
+                const product = numA * numB;
+                alert(`Both inputs detected as valid numeric primitives! Running Math Pipeline operations workflows routines.\nSum = ${sum}\nProduct = ${product}`);
+                document.getElementById('t21-res').innerText = `Numeric Inputs Operation logs: [Sum: ${sum} | Product: ${product}]`;
+            } else {
+                alert(`String parameter types instances caught in parameters matrix layers stream data.\nInput A content text layout string: "${valA}"\nInput B content text layout string: "${valB}"\nConcatenation combination output data stream trace path = "${valA + valB}"`);
+                document.getElementById('t21-res').innerText = `String evaluation pathway logic trigger concatenation execution outcome payload string value matches: "${valA + valB}"`;
+            }
+        }
+
+        // Task 22: Validate: email format
+        function runT22() {
+            const emailStr = document.getElementById('t22-input').value;
+            // Standard validation testing regex logic schemas structures pattern configuration mappings elements
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const isValid = emailPattern.test(emailStr);
+            
+            document.getElementById('t22-res').innerHTML = isValid 
+                ? `<span style="color:green; font-weight:bold;">✔ Active verification status: Valid Format structure syntax verified layout match configurations.</span>` 
+                : `<span style="color:red; font-weight:bold;">✘ Invalid format architecture detected string pattern format rules violation constraints matches.</span>`;
+        }
+
+        // Task 23: Validate: password length
+        function runT23() {
+            const passStr = document.getElementById('t23-input').value;
+            const meetsCriteria = passStr.length >= 8;
+            
+            document.getElementById('t23-res').innerHTML = meetsCriteria 
+                ? `<span style="color:green; font-weight:bold;">✔ Validation Passed. Length metrics size properties matches bounds target bounds thresholds (${passStr.length} chars).</span>` 
+                : `<span style="color:red; font-weight:bold;">✘ Validation Refused: Password sequence length parameters too short. Length minimum condition requirements rule is 8 characters long (Current size: ${passStr.length}).</span>`;
+        }
+
+        // Task 24, 25, 26 Form Data Actions Workflows Dashboard Implementation Block Logic Component
+        function updateFormFieldsCounter() {
+            const fieldIds = ['f-name', 'f-email', 'f-phone', 'f-city'];
+            let filledCount = 0;
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el && el.value.trim() !== "") filledCount++;
+            });
+            const indicator = document.getElementById('f-count-msg');
+            if(indicator) {
+                indicator.innerHTML = `<strong>Task 26 Metrics:</strong> Form tracking calculation counter state logs: <code>${filledCount}</code> out of 4 form field configuration variables are currently populated.`;
+            }
+        }
+
+        function submitFormWorkflow() {
+            // Task 24 Form processing pathways tracking actions updates logic frameworks
+            const nameVal = document.getElementById('f-name').value.trim();
+            const emailVal = document.getElementById('f-email').value.trim();
+            const phoneVal = document.getElementById('f-phone').value.trim();
+            const cityVal = document.getElementById('f-city').value.trim();
+
+            // Task 25 Display entered form data clearly
+            let templateHTML = `<strong>Pushed Transactional Form Submission Profile Logs Matrix System:</strong>\n`;
+            templateHTML += `------------------------------------------------------------\n`;
+            templateHTML += `Profile User Label Name Tag: ${nameVal ? nameVal : "[Field Blank Empty Context]"}\n`;
+            templateHTML += `Electronic Mail Address Key: ${emailVal ? emailVal : "[Field Blank Empty Context]"}\n`;
+            templateHTML += `Telephonic Destination Dial: ${phoneVal ? phoneVal : "[Field Blank Empty Context]"}\n`;
+            templateHTML += `Metropolitan Residential City: ${cityVal ? cityVal : "[Field Blank Empty Context]"}\n`;
+            
+            document.getElementById('f-data-display').innerHTML = templateHTML;
+            updateFormFieldsCounter();
+            alert("Form Data Submission cycle processed safely. Review updated trace logs at bottom section dashboard view.");
+        }
+
+        function resetFormWorkflow() {
+            // Task 24 Form field baseline configuration parameters state updates tracking actions triggers configurations
+            document.getElementById('practical-signup-form').reset();
+            document.getElementById('f-data-display').innerText = "Form values architecture structures cleaned back to defaults. Storage state logs tracking cleared.";
+            updateFormFieldsCounter();
+            alert("Form layout reset executed.");
+        }
+
+        // Task 27: Create person object
+        let globalPersonInstance = null;
+        function runT27() {
+            // Structural programmatic instantiation targeting Dictionary definitions configuration matrices layers 
+            globalPersonInstance = {
+                firstName: "Alexander",
+                lastName: "Vanderbilt",
+                age: 24,
+                profession: "Senior Software Systems Engineer Architect",
+                frameworkAccessTokens: ["ECMAScript6", "HTML5", "CSS3", "React Engine Core"],
+                timestampId: new Date().toISOString()
+            };
+            
+            document.getElementById('t27-res').innerHTML = `
+                <strong>Person Instance Dictionary Object Initialized via Runtime Engine Factory Routine:</strong>
+                <pre style="margin-top:10px; font-size:0.8rem; background:#333; color:#fff; padding:12px; border-radius:4px; overflow-x:auto;">${JSON.stringify(globalPersonInstance, null, 4)}</pre>
+            `;
+        }
+
+        // Task 28: Display person object in a card layout
+        function runT28() {
+            if(!globalPersonInstance) {
+                // Instantiate baseline model parameters automatically to ensure visualization capability works seamlessly
+                runT27();
+            }
+            const container = document.getElementById('t28-res');
+            container.innerHTML = `
+                <div class="card-view">
+                    <h4>${globalPersonInstance.firstName} ${globalPersonInstance.lastName}</h4>
+                    <p><strong>Age Property:</strong> ${globalPersonInstance.age} cycles</p>
+                    <p><strong>Role Target Assignment:</strong> ${globalPersonInstance.profession}</p>
+                    <p><strong>Stack Competence Key Matrix:</strong> ${globalPersonInstance.frameworkAccessTokens.join(', ')}</p>
+                    <p style="font-size:0.65rem; color:#999; margin-top:10px; border-top:1px dashed #ccc; padding-top:5px;">Serial Node Hash Identification Index Tracker: ${globalPersonInstance.timestampId}</p>
+                </div>
+            `;
+        }
+
+        // Task 29: Stopwatch with Start/Pause/Stop/Reset
+        function updateStopwatchUI() {
+            let hours = Math.floor(stopwatchTime / 36000);
+            let minutes = Math.floor((stopwatchTime % 36000) / 600);
+            let seconds = Math.floor((stopwatchTime % 600) / 10);
+            let tenths = stopwatchTime % 10;
+
+            let hStr = hours.toString().padStart(2, '0');
+            let mStr = minutes.toString().padStart(2, '0');
+            let sStr = seconds.toString().padStart(2, '0');
+
+            const swDisplay = document.getElementById('sw-display');
+            if(swDisplay) swDisplay.innerText = `${hStr}:${mStr}:${sStr}.${tenths}`;
+        }
+
+        function swStart() {
+            if(!stopwatchInterval) {
+                stopwatchInterval = setInterval(() => {
+                    stopwatchTime++;
+                    updateStopwatchUI();
+                }, 100); // Poll tracking precisely down every 10th part of seconds duration
+            }
+        }
+
+        function swPause() {
+            if(stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+        }
+
+        function swStop() {
+            if(stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+            alert(`Stopwatch timeline cycle paused hard. Locked Final Timestamp Duration Metrics: ${document.getElementById('sw-display').innerText}`);
+        }
+
+        function swReset() {
+            swPause();
+            stopwatchTime = 0;
+            updateStopwatchUI();
+        }
+
+        // Task 30: Live clock display (updates every second)
+        function initLiveClockEngine() {
+            if(clockInterval) clearInterval(clockInterval);
+            
+            const clockCallback = () => {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                hours = hours % 12;
+                hours = hours ? hours : 12; // Handle absolute zero hour point placement criteria loops metrics conversions standards values mappings
+                const hStr = hours.toString().padStart(2, '0');
+                
+                const clockView = document.getElementById('clock-display');
+                if(clockView) {
+                    clockView.innerText = `${hStr}:${minutes}:${seconds} ${ampm}`;
+                }
+            };
+            
+            clockCallback(); // Run instant setup mapping execution logic layer baseline calculations cycles maps
+            clockInterval = setInterval(clockCallback, 1000); // Recursive processing standard rules engine loop automation triggers
+        }
+
+        // Auto-initialize first operational block environment workspace target map view by default baseline layout setups configurations routines
+        loadTaskWorkspace(1);
+    </script>
+</body>
+</html>
